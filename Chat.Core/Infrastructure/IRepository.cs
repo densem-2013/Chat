@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using Chat.Core.DAL;
 
 namespace Chat.Core.Infrastructure
@@ -16,6 +18,12 @@ namespace Chat.Core.Infrastructure
         /// <returns>Entity</returns>
         T GetById(object id);
 
+        IQueryable<T> Select(
+            Expression<Func<T, bool>> filter = null,
+            Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+            List<Expression<Func<T, object>>> includes = null,
+            int? page = null,
+            int? pageSize = null);
         /// <summary>
         /// Insert entity
         /// </summary>

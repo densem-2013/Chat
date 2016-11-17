@@ -8,17 +8,24 @@ using System.Linq;
 
 namespace Chat.Core.DAL
 {
-    public class ChatContext : DbContext,IDbContext
+    public class ChatContext : DbContext, IDbContext
     {
+        //enable-migrations -ContextProjectName Chat.Core -StartUpProjectName Chat.Web -ContextTypeName Chat.Core.DAL.ChatContext -ProjectName Chat.Web
         #region Ctor
 
-        public ChatContext(string nameOrConnectionString)
-            : base(nameOrConnectionString)
+        public ChatContext() : base("name=ChatContext")
         {
-            //((IObjectContextAdapter) this).ObjectContext.ContextOptions.LazyLoadingEnabled = true;
+            Configuration.LazyLoadingEnabled = false;
+            Configuration.ProxyCreationEnabled = false;
+        }
+
+        static ChatContext()
+        {
+            Database.SetInitializer(new AppDbInitializer());
         }
 
         #endregion
+
         #region Methods
 
         /// <summary>
@@ -27,7 +34,7 @@ namespace Chat.Core.DAL
         /// <returns>SQL to generate database</returns>
         public string CreateDatabaseScript()
         {
-            return ((IObjectContextAdapter)this).ObjectContext.CreateDatabaseScript();
+            return ((IObjectContextAdapter) this).ObjectContext.CreateDatabaseScript();
         }
 
         /// <summary>
@@ -47,7 +54,8 @@ namespace Chat.Core.DAL
         /// <param name="commandText">Command text</param>
         /// <param name="parameters">Parameters</param>
         /// <returns>Entities</returns>
-        public IList<TEntity> ExecuteStoredProcedureList<TEntity>(string commandText, params object[] parameters) where TEntity : BaseEntity, new()
+        public IList<TEntity> ExecuteStoredProcedureList<TEntity>(string commandText, params object[] parameters)
+            where TEntity : BaseEntity, new()
         {
             //add parameters to command
             if (parameters != null && parameters.Length > 0)
@@ -71,7 +79,7 @@ namespace Chat.Core.DAL
 
             var result = this.Database.SqlQuery<TEntity>(commandText, parameters).ToList();
 
-           
+
 
             return result;
         }
@@ -96,14 +104,15 @@ namespace Chat.Core.DAL
         /// <param name="timeout">Timeout value, in seconds. A null value indicates that the default value of the underlying provider will be used</param>
         /// <param name="parameters">The parameters to apply to the command string.</param>
         /// <returns>The result returned by the database after executing the command.</returns>
-        public int ExecuteSqlCommand(string sql, bool doNotEnsureTransaction = false, int? timeout = null, params object[] parameters)
+        public int ExecuteSqlCommand(string sql, bool doNotEnsureTransaction = false, int? timeout = null,
+            params object[] parameters)
         {
             int? previousTimeout = null;
             if (timeout.HasValue)
             {
                 //store previous timeout
-                previousTimeout = ((IObjectContextAdapter)this).ObjectContext.CommandTimeout;
-                ((IObjectContextAdapter)this).ObjectContext.CommandTimeout = timeout;
+                previousTimeout = ((IObjectContextAdapter) this).ObjectContext.CommandTimeout;
+                ((IObjectContextAdapter) this).ObjectContext.CommandTimeout = timeout;
             }
 
             var transactionalBehavior = doNotEnsureTransaction
@@ -114,7 +123,7 @@ namespace Chat.Core.DAL
             if (timeout.HasValue)
             {
                 //Set previous timeout back
-                ((IObjectContextAdapter)this).ObjectContext.CommandTimeout = previousTimeout;
+                ((IObjectContextAdapter) this).ObjectContext.CommandTimeout = previousTimeout;
             }
 
             //return result
@@ -130,26 +139,22 @@ namespace Chat.Core.DAL
             if (entity == null)
                 throw new ArgumentNullException("entity");
 
-            ((IObjectContextAdapter)this).ObjectContext.Detach(entity);
+            ((IObjectContextAdapter) this).ObjectContext.Detach(entity);
         }
 
         #endregion
 
         #region Properties
 
+        public virtual DbSet<ChatUser> ChatUsers { get; set; } 
+        public virtual DbSet<Message> Messages { get; set; } 
         /// <summary>
         /// Gets or sets a value indicating whether proxy creation setting is enabled (used in EF)
         /// </summary>
         public virtual bool ProxyCreationEnabled
         {
-            get
-            {
-                return this.Configuration.ProxyCreationEnabled;
-            }
-            set
-            {
-                this.Configuration.ProxyCreationEnabled = value;
-            }
+            get { return this.Configuration.ProxyCreationEnabled; }
+            set { this.Configuration.ProxyCreationEnabled = value; }
         }
 
         /// <summary>
@@ -157,14 +162,8 @@ namespace Chat.Core.DAL
         /// </summary>
         public virtual bool AutoDetectChangesEnabled
         {
-            get
-            {
-                return this.Configuration.AutoDetectChangesEnabled;
-            }
-            set
-            {
-                this.Configuration.AutoDetectChangesEnabled = value;
-            }
+            get { return this.Configuration.AutoDetectChangesEnabled; }
+            set { this.Configuration.AutoDetectChangesEnabled = value; }
         }
 
         #endregion

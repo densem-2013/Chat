@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Data.Entity.Validation;
 using System.Linq;
+using System.Linq.Expressions;
 using Chat.Core.DAL;
+using LinqKit;
 
 namespace Chat.Core.Infrastructure
 {
@@ -62,6 +64,37 @@ namespace Chat.Core.Infrastructure
             //see some suggested performance optimization (not tested)
             //http://stackoverflow.com/questions/11686225/dbset-find-method-ridiculously-slow-compared-to-singleordefault-on-id/11688189#comment34876113_11688189
             return this.Entities.Find(id);
+        }
+
+        /// <summary>
+        /// Get IQueryable<T> by expression
+        /// </summary>
+        public  IQueryable<T> Select(
+           Expression<Func<T, bool>> filter = null,
+           Func<IQueryable<T>, IOrderedQueryable<T>> orderBy = null,
+           List<Expression<Func<T, object>>> includes = null,
+           int? page = null,
+           int? pageSize = null)
+        {
+            IQueryable<T> query = Entities;
+
+            if (includes != null)
+            {
+                query = includes.Aggregate(query, (current, include) => current.Include(include));
+            }
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+            if (filter != null)
+            {
+                query = query.AsExpandable().Where(filter);
+            }
+            if (page != null && pageSize != null)
+            {
+                query = query.Skip((page.Value - 1) * pageSize.Value).Take(pageSize.Value);
+            }
+            return query;
         }
 
         /// <summary>

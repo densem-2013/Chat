@@ -1,4 +1,6 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Chat.Core.DAL
 {
@@ -10,6 +12,8 @@ namespace Chat.Core.DAL
         /// <summary>
         /// Gets or sets the entity identifier
         /// </summary>
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int Id { get; set; }
 
         public override bool Equals(object obj)
