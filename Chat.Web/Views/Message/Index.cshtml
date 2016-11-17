@@ -4,27 +4,33 @@
     ViewBag.Title = "Chart Home Page";
 }
 
-
-@Html.BeginForm("SendMessage", "Message", FormMethod.Post, new { @class="mainform"}){ 
-    <div class="row">
-        <div class="col-md-4">
-            @Html.LabelFor(m => m.NewMessageText, new { @class = "col-md-2 control-label" })
-            <div class="col-md-10">
-                @Html.TextAreaFor(m => m.NewMessageText, new {@class = "form-control"})
-            </div>
-            <input type="submit" value="Send" class="btn-default"/>
-        </div>
-    </div>
-    @foreach (MessageModel message in Model.Messages)
+<div class="mainform">
+    @using (@Html.BeginForm("SendMessage", "Message", FormMethod.Post))
     {
         <div class="row">
             <div class="col-md-4">
-                @*@Html.LabelFor*@
+                @Html.LabelFor(m => m.NewMessageText, new { @class = "col-md-2 control-label" })
+                <div class="col-md-10">
+                    @Html.TextAreaFor(m => m.NewMessageText, new { @class = "form-control" })
+                </div>
+                <input type="submit" value="Send" class="btn-default" />
             </div>
-            <div class="col-md-4">
-
-            </div>
-
         </div>
+        foreach (MessageModel message in Model.Messages)
+        {
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-inline">
+                        <label class="col-md-2 control-label">@message.CreateTime</label>
+                    </div>
+                    <div class="form-inline">
+                        <label class="col-md-2 control-label">@message.UserName</label>
+                    </div>
+                    <div class="form-control">
+                        <input type="text" value="@message.MessageText" class="col-md-3 control-label" />
+                    </div>
+                </div>
+            </div>
+        }
     }
-}
+</div>

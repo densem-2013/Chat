@@ -2,7 +2,7 @@
 
 namespace Chat.Core.DAL
 {
-    public class AppDbInitializer : DropCreateDatabaseIfModelChanges<ChatContext>
+    public class AppDbInitializer : DropCreateDatabaseAlways<ChatContext>
     {
     }
 }
