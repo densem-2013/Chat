@@ -5,6 +5,8 @@ namespace Chat.Web.Models
 {
     public class IndexPageModel
     {
+        public int UserId { get; set; }
+
         [Display(Name = "New Message:")]
         public string NewMessageText { get; set; }
 

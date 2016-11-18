@@ -4,6 +4,7 @@ using System.Data;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
+using System.Data.Entity.ModelConfiguration.Conventions;
 using System.Linq;
 
 namespace Chat.Core.DAL
@@ -27,6 +28,16 @@ namespace Chat.Core.DAL
         #endregion
 
         #region Methods
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            //configure one-to-many
+            modelBuilder.Entity<ChatUser>()
+                        .HasMany<Message>(ch => ch.Messages)
+                    .WithRequired(m => m.ChatUser) 
+                    .HasForeignKey(m => m.ChatUserId); 
+             base.OnModelCreating(modelBuilder);
+        }
 
         /// <summary>
         /// Create database script

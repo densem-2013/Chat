@@ -4,8 +4,13 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Chat.Core.DAL
 {
-    public class ChatUser : BaseEntity
+    public sealed class ChatUser : BaseEntity
     {
+        public ChatUser()
+        {
+            Messages = new List<Message>();
+        }
+
         [Required]
         public string FirstName { get; set; }
         [Required]
@@ -13,9 +18,11 @@ namespace Chat.Core.DAL
         [Required]
         [EmailAddress]
         public string Email { get; set; }
+
         [Required]
         [PasswordPropertyText]
         public string PassWord { get; set; }
-        public virtual ICollection<Message> Messages { get; set; }
+
+        public ICollection<Message> Messages { get; set; }
     }
 }

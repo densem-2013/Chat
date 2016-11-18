@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Web.Mvc;
 using Chat.Core.DAL;
 using Chat.Core.Infrastructure;
@@ -9,20 +9,35 @@ using Chat.Web.Models;
 
 namespace Chat.Web.Controllers
 {
+    [Authorize]
     public class MessageController : Controller
     {
-        private readonly IRepository<Message> _repository;
+        private readonly IRepository<Message> _repoMessage;
 
-        public MessageController(IRepository<Message> repository)
+        public MessageController(IRepository<Message> repoMessage)
         {
-            _repository = repository;
+            _repoMessage = repoMessage;
         }
 
-        public ActionResult Index()
+        public ActionResult Index(int id)
+        {
+            return View(GetPageModel(id));
+        }
+
+        [HttpPost]
+        public ActionResult SendMessage(IndexPageModel model)
+        {
+            int userid = model.UserId;
+            
+            _repoMessage.Insert(new Message { Text = model.NewMessageText, DateTime = DateTime.Now, ChatUserId = userid });
+
+            return Redirect($"/Message/Index/{userid}");
+        }
+
+        private IndexPageModel GetPageModel(int userid)
         {
             List<Message> messages =
-                _repository.Select(null, mes => mes.OrderByDescending(m => m.DateTime),
-                    new List<Expression<Func<Message, object>>> {mes => mes.ChatUser}).ToList();
+                  _repoMessage.Table.Include("ChatUser").OrderByDescending(m => m.DateTime).ToList();
 
             List<MessageModel> mesmodels = messages.Select(mm => new MessageModel
             {
@@ -31,20 +46,12 @@ namespace Chat.Web.Controllers
                 CreateTime = mm.DateTime.ToLocalTime()
             }).ToList();
 
-            IndexPageModel indPage = new IndexPageModel
+            return new IndexPageModel
             {
+                UserId = userid,
                 NewMessageText = "",
                 Messages = mesmodels
             };
-            return View(indPage);
         }
-
-        [HttpPost]
-        public ActionResult SendMessage(IndexPageModel model)
-        {
-            _repository.Insert(new Message {Text = model.NewMessageText, DateTime = DateTime.Now});
-            return View("Index");
-        }
-
     }
 }

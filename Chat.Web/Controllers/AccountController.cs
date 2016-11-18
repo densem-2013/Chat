@@ -34,7 +34,8 @@ namespace Chat.Web.Controllers
                 if (user != null)
                 {
                     FormsAuthentication.SetAuthCookie(model.Email, true);
-                    return RedirectToAction("Index", "Message");
+
+                    return RedirectToAction("Index", "Message", new {id = user.Id});
                 }
                 else
                 {
@@ -44,7 +45,7 @@ namespace Chat.Web.Controllers
 
             return View(model);
         }
-
+        
         public ActionResult Register()
         {
             return View();
@@ -73,7 +74,8 @@ namespace Chat.Web.Controllers
                     if (user != null)
                     {
                         FormsAuthentication.SetAuthCookie(model.Email, true);
-                        return RedirectToAction("Index", "Message");
+
+                        return RedirectToAction("Index", "Message", new { id = user.Id });
                     }
                 }
                 else
